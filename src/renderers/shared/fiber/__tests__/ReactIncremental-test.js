@@ -11,6 +11,8 @@
 
 'use strict';
 
+var { LowPriority } = require('ReactPriorityLevel');
+
 var React;
 var ReactNoop;
 
@@ -18,6 +20,7 @@ describe('ReactIncremental', () => {
   beforeEach(() => {
     React = require('React');
     ReactNoop = require('ReactNoop');
+    ReactNoop.setDefaultPriority(LowPriority);
   });
 
   it('should render a simple component', () => {

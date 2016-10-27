@@ -11,6 +11,8 @@
 
 'use strict';
 
+var { LowPriority } = require('ReactPriorityLevel');
+
 var React;
 var ReactNoop;
 
@@ -18,6 +20,7 @@ describe('ReactIncrementalReflection', () => {
   beforeEach(() => {
     React = require('React');
     ReactNoop = require('ReactNoop');
+    ReactNoop.setDefaultPriority(LowPriority);
   });
 
   it('handles isMounted even when the initial render is deferred', () => {

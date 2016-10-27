@@ -67,6 +67,7 @@ export type Reconciler<C, I, TI> = {
   updateContainer(element : ReactElement<any>, container : OpaqueNode) : void,
   unmountContainer(container : OpaqueNode) : void,
   performWithPriority(priorityLevel : PriorityLevel, fn : Function) : void,
+  setDefaultPriority(prriorityLevel : PriorityLevel) : void,
 
   // Used to extract the return value from the initial render. Legacy API.
   getPublicRootInstance(container : OpaqueNode) : (ReactComponent<any, any, any> | TI | I | null),
@@ -77,7 +78,11 @@ export type Reconciler<C, I, TI> = {
 
 module.exports = function<T, P, I, TI, C>(config : HostConfig<T, P, I, TI, C>) : Reconciler<C, I, TI> {
 
-  var { scheduleWork, performWithPriority } = ReactFiberScheduler(config);
+  var {
+    scheduleWork,
+    performWithPriority,
+    setDefaultPriority,
+  } = ReactFiberScheduler(config);
 
   return {
 
@@ -140,6 +145,7 @@ module.exports = function<T, P, I, TI, C>(config : HostConfig<T, P, I, TI, C>) :
     },
 
     performWithPriority,
+    setDefaultPriority,
 
     getPublicRootInstance(container : OpaqueNode) : (ReactComponent<any, any, any> | I | TI | null) {
       const root : FiberRoot = (container.stateNode : any);

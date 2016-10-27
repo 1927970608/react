@@ -26,7 +26,6 @@ var { cloneFiber } = require('ReactFiber');
 
 var {
   NoWork,
-  LowPriority,
   AnimationPriority,
   SynchronousPriority,
 } = require('ReactPriorityLevel');
@@ -64,7 +63,7 @@ module.exports = function<T, P, I, TI, C>(config : HostConfig<T, P, I, TI, C>) {
   // The priority level to use when scheduling an update.
   let priorityContext : (PriorityLevel | null) = null;
   // The priority level to use if there is no priority context.
-  let defaultPriorityContext : PriorityLevel = LowPriority;
+  let defaultPriorityContext : PriorityLevel = SynchronousPriority;
 
   // The next work in progress fiber that we're currently working on.
   let nextUnitOfWork : ?Fiber = null;
@@ -490,9 +489,14 @@ module.exports = function<T, P, I, TI, C>(config : HostConfig<T, P, I, TI, C>) {
     }
   }
 
+  function setDefaultPriority(priorityLevel : PriorityLevel) {
+    defaultPriorityContext = priorityLevel;
+  }
+
   return {
     scheduleWork: scheduleWork,
     scheduleDeferredWork: scheduleDeferredWork,
     performWithPriority: performWithPriority,
+    setDefaultPriority,
   };
 };

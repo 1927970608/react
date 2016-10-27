@@ -20,6 +20,7 @@
 'use strict';
 
 import type { Fiber } from 'ReactFiber';
+import type { PriorityLevel } from 'ReactPriorityLevel';
 import type { UpdateQueue } from 'ReactFiberUpdateQueue';
 import type { HostChildren } from 'ReactFiberReconciler';
 
@@ -208,6 +209,10 @@ var ReactNoop = {
 
   performAnimationWork(fn: Function) {
     NoopRenderer.performWithPriority(AnimationPriority, fn);
+  },
+
+  setDefaultPriority(priorityLevel: PriorityLevel) {
+    NoopRenderer.setDefaultPriority(priorityLevel);
   },
 
   // Logs the current state of the tree.
