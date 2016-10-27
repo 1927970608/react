@@ -404,15 +404,14 @@ module.exports = function<T, P, I, TI, C>(config : HostConfig<T, P, I, TI, C>) {
     }
   }
 
-  function scheduleSynchronousWork(root: FiberRoot) {
-    root.current.pendingWorkPriority = SynchronousPriority;
-
-    // Perform work now
-    nextUnitOfWork = findNextUnitOfWork();
+  function performSynchronousWork() {
+    if (!nextUnitOfWork) {
+      nextUnitOfWork = findNextUnitOfWork();
+    }
     while (nextUnitOfWork &&
            nextPriorityLevel === SynchronousPriority) {
       nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
-      // If there's no nextUnitForWork, we don't need to search for more
+      // If there's no nextUnitOfWork, we don't need to search for more
       // because it shouldn't be possible to schedule sync work without
       // immediately performing it
     }
@@ -425,6 +424,11 @@ module.exports = function<T, P, I, TI, C>(config : HostConfig<T, P, I, TI, C>) {
     }
   }
 
+  function scheduleSynchronousWork(root: FiberRoot) {
+    root.current.pendingWorkPriority = SynchronousPriority;
+    performSynchronousWork();
+  }
+
   function scheduleWork(root : FiberRoot, priorityLevel : ?PriorityLevel): void {
     // Use priority context if no priority is provided
     if (priorityLevel == null) {
@@ -433,12 +437,11 @@ module.exports = function<T, P, I, TI, C>(config : HostConfig<T, P, I, TI, C>) {
         defaultPriorityContext;
     }
 
-    if (priorityLevel === SynchronousPriority) {
-      scheduleSynchronousWork(root);
-    }
-
     if (priorityLevel === NoWork) {
       return;
+    }
+    if (priorityLevel === SynchronousPriority) {
+      scheduleSynchronousWork(root);
     }
     if (priorityLevel > AnimationPriority) {
       scheduleDeferredWork(root, priorityLevel);
@@ -453,6 +456,13 @@ module.exports = function<T, P, I, TI, C>(config : HostConfig<T, P, I, TI, C>) {
       priorityLevel = priorityContext !== null ?
         priorityContext :
         defaultPriorityContext;
+    }
+
+    if (priorityLevel === SynchronousPriority) {
+      fiber.pendingWorkPriority = SynchronousPriority;
+      nextUnitOfWork = fiber;
+      performSynchronousWork();
+      return;
     }
 
     while (true) {
